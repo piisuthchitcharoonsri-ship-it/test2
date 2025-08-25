@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ร้านขายของออนไลน์</title>
+<style>
+body { font-family: Arial; margin:0; background:#fff; color:#000; }
+header { background:#000; color:#fff; padding:15px; text-align:center; }
+.container { padding:20px; max-width:1000px; margin:auto; }
+.products { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:20px; }
+.product { border:1px solid #000; padding:15px; text-align:center; }
+.product img { width:100%; max-height:150px; object-fit:cover; margin-bottom:10px; }
+.product button { padding:6px 12px; border:1px solid #000; background:#000; color:#fff; cursor:pointer; }
+.cart { position:fixed; top:0; right:-350px; width:300px; height:100%; background:#fff; border-left:2px solid #000; padding:20px; transition:right 0.3s; overflow-y:auto; }
+.cart.active { right:0; }
+.cart h2 { margin-top:0; }
+.cart-item { display:flex; justify-content:space-between; margin-bottom:10px; }
+.toggle-cart { position:fixed; top:20px; right:20px; background:#000; color:#fff; padding:10px 15px; cursor:pointer; border:none; }
+</style>
+</head>
+<body>
+<header>
+  <h1>ร้านขายของออนไลน์</h1>
+</header>
+
+<button class="toggle-cart">🛒 ตะกร้า</button>
+
+<div class="container">
+  <div class="products" id="products"></div>
+</div>
+
+<div class="cart" id="cart">
+  <h2>ตะกร้าสินค้า</h2>
+  <div id="cart-items"></div>
+  <h3>รวม: <span id="total">0</span> บาท</h3>
+  <button onclick="checkout()">ชำระเงิน (เดโม)</button>
+</div>
+
+<script>
+const products = [
+  { id:1, name:"หูฟัง", category:"electronics", price:500, img:"images/headphones.jpg" },
+  { id:2, name:"เสื้อยืด", category:"clothes", price:300, img:"images/tshirt.jpg" },
+  { id:3, name:"หนังสือธุรกิจ", category:"books", price:250, img:"images/book.jpg" },
+  { id:4, name:"เพาเวอร์แบงค์", category:"electronics", price:1200, img:"images/powerbank.jpg" }
+];
+
+let cart = JSON.parse(localStorage.getItem("cart")) || [];
+
+const productContainer = document.getElementById("products");
+const cartContainer = document.getElementById("cart-items");
+const totalElement = document.getElementById("total");
+const cartElement = document.getElementById("cart");
+
+function renderProducts(){
+  productContainer.innerHTML="";
+  products.forEach(p=>{
+    const div=document.createElement("div");
+    div.className="product";
+    div.innerHTML=`
+      <img src="${p.img}" alt="${p.name}">
+      <h3>${p.name}</h3>
+      <p>${p.price} บาท</p>
+      <button onclick="addToCart(${p.id})">เพิ่มลงตะกร้า</button>
+    `;
+    productContainer.appendChild(div);
+  });
+}
+
+function renderCart(){
+  cartContainer.innerHTML="";
+  let total=0;
+  cart.forEach(item=>{
+    total+=item.price*item.qty;
+    const div=document.createElement("div");
+    div.className="cart-item";
+    div.innerHTML=`<span>${item.name} x ${item.qty}</span><span>${item.price*item.qty} บาท</span>`;
+    cartContainer.appendChild(div);
+  });
+  totalElement.textContent=total;
+  localStorage.setItem("cart", JSON.stringify(cart));
+}
+
+function addToCart(id){
+  const product=products.find(p=>p.id===id);
+  const existing=cart.find(i=>i.id===id);
+  if(existing){ existing.qty++; } else { cart.push({...product, qty:1}); }
+  renderCart();
+}
+
+function checkout(){ alert("นี่คือเดโมการชำระเงิน (ยังไม่เชื่อมต่อจริง)"); }
+
+document.querySelector(".toggle-cart").addEventListener("click",()=>{ cartElement.classList.toggle("active"); });
+
+renderProducts();
+renderCart();
+</script>
+</body>
+</html>
